@@ -1,120 +1,120 @@
-import NextAuth from "next-auth"
+import NextAuth, { DefaultSession } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
+import { JWT } from "next-auth/jwt"
 
 import authConfig from "./auth.config"
 import { db } from "./lib/db";
-import { getAccountByUserId, getUserById } from "./modules/auth/actions";
+import { getUserById } from "./modules/auth/actions";
 
+// ✅ Augment session type only (no JWT module augmentation needed)
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      role: string;
+    } & DefaultSession["user"]
+  }
+}
 
- 
-
- 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
-    /**
-     * Handle user creation and account linking after a successful sign-in
-     */
-    async signIn({ user, account, profile }) {
-      if (!user || !account) return false;
+    async signIn({ user, account }) {
+      if (!user?.email || !account) return false;
 
-      // Check if the user already exists
-      const existingUser = await db.user.findUnique({
-        where: { email: user.email! },
-      });
+      try {
+        const existingUser = await db.user.findUnique({
+          where: { email: user.email },
+        });
 
-      // If user does not exist, create a new one
-      if (!existingUser) {
-        const newUser = await db.user.create({
-          data: {
-            email: user.email!,
-            name: user.name,
-            image: user.image,
-           
-            accounts: {
-              // @ts-ignore
-              create: {
+        if (!existingUser) {
+          const newUser = await db.user.create({
+            data: {
+              email: user.email,
+              name: user.name ?? null,
+              image: user.image ?? null,
+              accounts: {
+                create: {
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  refresh_token: account.refresh_token ?? null,
+                  access_token: account.access_token ?? null,
+                  expires_at: account.expires_at ?? null,
+                  token_type: account.token_type ?? null,
+                  scope: account.scope ?? null,
+                  id_token: account.id_token ?? null,
+                  session_state: (account.session_state as string) ?? null,
+                },
+              },
+            },
+          });
+
+          if (!newUser) return false;
+
+        } else {
+          const existingAccount = await db.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              },
+            },
+          });
+
+          if (!existingAccount) {
+            await db.account.create({
+              data: {
+                userId: existingUser.id,
                 type: account.type,
                 provider: account.provider,
                 providerAccountId: account.providerAccountId,
-                refreshToken: account.refresh_token,
-                accessToken: account.access_token,
-                expiresAt: account.expires_at,
-                tokenType: account.token_type,
-                scope: account.scope,
-                idToken: account.id_token,
-                sessionState: account.session_state,
+                refresh_token: account.refresh_token ?? null,
+                access_token: account.access_token ?? null,
+                expires_at: account.expires_at ?? null,
+                token_type: account.token_type ?? null,
+                scope: account.scope ?? null,
+                id_token: account.id_token ?? null,
+                session_state: (account.session_state as string) ?? null,
               },
-            },
-          },
-        });
-
-        if (!newUser) return false; // Return false if user creation fails
-      } else {
-        // Link the account if user exists
-        const existingAccount = await db.account.findUnique({
-          where: {
-            provider_providerAccountId: {
-              provider: account.provider,
-              providerAccountId: account.providerAccountId,
-            },
-          },
-        });
-
-        // If the account does not exist, create it
-        if (!existingAccount) {
-          await db.account.create({
-            data: {
-              userId: existingUser.id,
-              type: account.type,
-              provider: account.provider,
-              providerAccountId: account.providerAccountId,
-              refreshToken: account.refresh_token,
-              accessToken: account.access_token,
-              expiresAt: account.expires_at,
-              tokenType: account.token_type,
-              scope: account.scope,
-              idToken: account.id_token,
-              // @ts-ignore
-              sessionState: account.session_state,
-            },
-          });
+            });
+          }
         }
-      }
 
-      return true;
+        return true;
+      } catch (error) {
+        console.error("SignIn error:", error);
+        return false;
+      }
     },
 
-    async jwt({ token, user, account }) {
-      if(!token.sub) return token;
-      const existingUser = await getUserById(token.sub)
+    // ✅ Use explicit JWT type from next-auth/jwt
+    async jwt({ token, user }) {
+      if (!token.sub) return token;
 
-      if(!existingUser) return token;
-        
-      const exisitingAccount = await getAccountByUserId(existingUser.id);
+      const existingUser = await getUserById(token.sub);
+      if (!existingUser) return token;
 
       token.name = existingUser.name;
       token.email = existingUser.email;
-      token.role = existingUser.role;
+      // ✅ Cast to any to avoid modifier conflict with built-in JWT type
+      (token as JWT & { role: string }).role = existingUser.role;
 
       return token;
     },
 
     async session({ session, token }) {
-      // Attach the user ID from the token to the session
-    if(token.sub  && session.user){
-      session.user.id = token.sub
-    } 
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+        // ✅ Safe cast since role is always set in jwt callback
+        session.user.role = (token as JWT & { role: string }).role ?? "USER";
+      }
 
-    if(token.sub && session.user){
-      session.user.role = token.role
-    }
-
-    return session;
+      return session;
     },
   },
-  
+
   secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   ...authConfig,
-})
+});
