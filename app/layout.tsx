@@ -45,10 +45,11 @@ export default async function RootLayout({
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
-          ></ThemeProvider>
+          >
 
 
           {children}
+          </ThemeProvider>
         </body>
       </html>
     </SessionProvider>
