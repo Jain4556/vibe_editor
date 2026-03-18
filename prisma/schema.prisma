@@ -5,12 +5,14 @@
 
 generator client {
   provider = "prisma-client-js"
+  engineType = "binary"
   
 }
 
+
 datasource db {
   provider = "mongodb"
-
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole{
@@ -20,7 +22,7 @@ enum UserRole{
 }
 
 model User {
-  id String @id @default(cuid()) @map("_id")
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   name String?
   email String @unique
   image String?
