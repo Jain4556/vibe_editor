@@ -1,10 +1,11 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
-import {SessionProvider} from "next-auth/react"
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
+import { SessionProvider } from "next-auth/react"
 import { auth } from "@/auth";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
@@ -40,7 +41,7 @@ export default async function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-                <ThemeProvider
+          <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
@@ -48,7 +49,7 @@ export default async function RootLayout({
           >
 
 
-          {children}
+            {children}
           </ThemeProvider>
         </body>
       </html>
