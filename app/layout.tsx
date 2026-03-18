@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 import {SessionProvider} from "next-auth/react"
 import { auth } from "@/auth";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 
 
 
@@ -39,6 +40,14 @@ export default async function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
+                <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          ></ThemeProvider>
+
+
           {children}
         </body>
       </html>
