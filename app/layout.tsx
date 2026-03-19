@@ -8,6 +8,7 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mon
 import { SessionProvider } from "next-auth/react"
 import { auth } from "@/auth";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { Toaster } from "sonner";
 
 
 
@@ -48,8 +49,15 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
 
+          <div className="flex flex-col min-h-screen">
+            <Toaster/>
+            <div className="flex-1 ">
+      {children}
+            </div>
 
-            {children}
+          </div>
+
+          
           </ThemeProvider>
         </body>
       </html>

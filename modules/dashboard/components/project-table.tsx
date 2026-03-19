@@ -40,7 +40,7 @@ interface EditProjectData {
   description: string
 }
 
-export default function ProjectTable({ projects }: ProjectTableProps) {
+export default function  ProjectTable({ projects }: ProjectTableProps) {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
