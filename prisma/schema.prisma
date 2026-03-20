@@ -24,9 +24,7 @@ model User {
 
   myPlayground Playground[]
   staredPlayground StarMark[]
-
   
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

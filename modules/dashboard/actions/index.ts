@@ -4,6 +4,46 @@ import { db } from "@/lib/db";
 import { currentUser } from "@/modules/auth/actions"
 import { revalidatePath } from "next/cache";
 
+
+export const toggleStarMarked = async (playgroundId: string, isChecked: boolean) => {
+    const user = await currentUser()
+    const userId = user?.id
+    if (!userId) {
+        throw new Error("User Id is required")
+    }
+
+    try {
+        if (isChecked) {
+            await db.starMark.create({
+                data: {
+                    userId: userId!,
+                    playgroundId,
+                    isMarked: isChecked,
+                }
+            })
+        }
+
+        else {
+             await db.starMark.delete({
+                where: {
+                   userId_playgroundId: {
+                    userId,
+                    playgroundId: playgroundId
+                   }
+                   
+                }
+            })
+        }
+
+        revalidatePath("/dashboard")
+        return {success: true, isMarked: isChecked}
+    } catch (error) {
+        console.error("Error updating problem", error)
+        return {success: true, error: "Failed to update problem"}
+    }
+}
+
+
 export const getAllPlaygroundForUser = async function () {
     const user = await currentUser();
 
@@ -13,7 +53,15 @@ export const getAllPlaygroundForUser = async function () {
                 userId: user?.id
             },
             include: {
-                user: true
+                user: true, 
+                Starmark: {
+                    where: {
+                        userId:user?.id!
+                    }, 
+                    select: {
+                        isMarked: true 
+                    }
+                }
             }
         })
 
