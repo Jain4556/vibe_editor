@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -73,6 +73,8 @@ model Playground {
   userId String @db.ObjectId
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  templateFiles TemplateFile[]
+
   @@index([userId])
 }
 
@@ -90,6 +92,14 @@ model StarMark {
 
 
   @@unique([userId, playgroundId])
-  
-
 }  
+
+model TemplateFile {
+    id String @id @default(cuid()) @map("_id")
+    content Json
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    playgroundId String @unique
+
+    playground Playground @relation(fields: [playgroundId], references: [id], onDelete: Cascade)
+}
