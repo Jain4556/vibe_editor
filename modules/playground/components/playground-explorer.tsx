@@ -137,11 +137,11 @@ export function TemplateFileTree({
         <SidebarGroup>
           <SidebarGroupLabel>{title}</SidebarGroupLabel>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarGroupAction>
-                <Plus className="h-4 w-4" />
-              </SidebarGroupAction>
-            </DropdownMenuTrigger>
+         <DropdownMenuTrigger>
+  <SidebarGroupAction>
+    <Plus className="h-4 w-4" />
+  </SidebarGroupAction>
+</DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleAddRootFile}>
                 <FilePlus className="h-4 w-4 mr-2" />
@@ -295,7 +295,7 @@ function TemplateNode({
           </SidebarMenuButton>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button
                 variant="ghost"
                 size="icon"
@@ -402,20 +402,20 @@ function TemplateNode({
           onOpenChange={setIsOpen}
         >
           <div className="flex items-center group">
-            <CollapsibleTrigger asChild>
-              <SidebarMenuButton className="flex-1">
-                {/* changes of arrow in folder */}
-                <ChevronRight
-                  className={`transition-transform duration-200 ${isOpen ? "rotate-90" : ""
-                    }`}
-                />
-                <Folder className="h-4 w-4 mr-2 shrink-0" />
-                <span>{folderName}</span>
+            <CollapsibleTrigger>
+              <SidebarMenuButton asChild className="flex-1">
+                <CollapsibleTrigger>
+                  <ChevronRight
+                    className={`transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+                  />
+                  <Folder className="h-4 w-4 mr-2 shrink-0" />
+                  <span>{folderName}</span>
+                </CollapsibleTrigger>
               </SidebarMenuButton>
             </CollapsibleTrigger>
 
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger >
                 <Button
                   variant="ghost"
                   size="icon"
