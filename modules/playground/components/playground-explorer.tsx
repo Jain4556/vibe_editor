@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -137,7 +138,7 @@ export function TemplateFileTree({
         <SidebarGroup>
           <SidebarGroupLabel>{title}</SidebarGroupLabel>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <SidebarGroupAction>
                 <Plus className="h-4 w-4" />
               </SidebarGroupAction>
@@ -295,7 +296,7 @@ function TemplateNode({
           </SidebarMenuButton>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button
                 variant="ghost"
                 size="icon"
@@ -402,7 +403,7 @@ function TemplateNode({
           onOpenChange={setIsOpen}
         >
           <div className="flex items-center group">
-            <CollapsibleTrigger asChild>
+            <CollapsibleTrigger>
               <SidebarMenuButton className="flex-1">
                 {/* changes of arrow in folder */}
                 <ChevronRight
@@ -415,7 +416,7 @@ function TemplateNode({
             </CollapsibleTrigger>
 
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger>
                 <Button
                   variant="ghost"
                   size="icon"
