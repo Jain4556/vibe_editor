@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 
 import { WebContainer } from "@webcontainer/api";
 import { TemplateFolder } from "@/modules/playground/lib/path-to-json";
+import TerminalComponent from "./terminal";
 // import TerminalComponent from "./terminal";
 
 interface WebContainerPreviewProps {
@@ -101,7 +102,7 @@ const WebContainerPreview = ({
             setLoadingState((prev) => ({ ...prev, starting: true }));
             return;
           }
-        } catch (error) {}
+        } catch (error) { }
 
         // Step-1 transform data
         setLoadingState((prev) => ({ ...prev, transforming: true }));
@@ -242,7 +243,7 @@ const WebContainerPreview = ({
   }, [instance, templateData, isSetupComplete, isSetupInProgress]);
 
   useEffect(() => {
-    return () => {};
+    return () => { };
   }, []);
 
   if (isLoading) {
@@ -288,13 +289,12 @@ const WebContainerPreview = ({
 
     return (
       <span
-        className={`text-sm font-medium ${
-          isComplete
+        className={`text-sm font-medium ${isComplete
             ? "text-green-600"
             : isActive
-            ? "text-blue-600"
-            : "text-gray-500"
-        }`}
+              ? "text-blue-600"
+              : "text-gray-500"
+          }`}
       >
         {label}
       </span>
@@ -333,12 +333,12 @@ const WebContainerPreview = ({
 
           {/* Terminal */}
           <div className="flex-1 p-4">
-            {/* <TerminalComponent
+            <TerminalComponent
               ref={terminalRef}
               webContainerInstance={instance}
               theme="dark"
               className="h-full"
-            /> */}
+            />
           </div>
         </div>
       ) : (
@@ -351,7 +351,17 @@ const WebContainerPreview = ({
             />
           </div>
 
-         
+
+          <div className="h-64 border-t">
+            <TerminalComponent
+              ref={terminalRef}
+              webContainerInstance={instance}
+              theme="dark"
+              className="h-full"
+
+            />
+          </div>
+
         </div>
       )}
     </div>
