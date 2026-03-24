@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,9 @@ import { TemplateFileTree } from "@/modules/playground/components/playground-exp
 import { useFileExplorer } from "@/modules/playground/hooks/useFileExplorer";
 import { usePlayground } from "@/modules/playground/hooks/usePlayground";
 import { TemplateFile } from "@/modules/playground/lib/path-to-json";
+import WebContainerPreview from "@/modules/webcontainers/components/webcontainer-preview";
+
+import { useWebContainer } from "@/modules/webcontainers/hooks/useWebContainer";
 import { Bot, FileText, Save, Settings, X } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -46,6 +49,17 @@ const MainPlaygroundPage = () => {
     openFiles,
   } = useFileExplorer();
 
+  const {
+    serverUrl,
+    isLoading: containerLoading,
+    error: containerError,
+    instance,
+    writeFileSync
+
+    // @ts-ignore
+  } = useWebContainer({ templateData })
+
+
   useEffect(() => {
     setPlaygroundId(id);
   }, [id, setPlaygroundId]);
@@ -66,18 +80,23 @@ const MainPlaygroundPage = () => {
   return (
     <TooltipProvider>
       <>
-        <TemplateFileTree
-          data={templateData!}
-          onFileSelect={handleFileSelect}
-          selectedFile={activeFile}
-          title="File Explorer"
-          onAddFile={() => {}}
-          onAddFolder={() => {}}
-          onDeleteFile={() => {}}
-          onDeleteFolder={() => {}}
-          onRenameFile={() => {}}
-          onRenameFolder={() => {}}
-        />
+        {
+          templateData && (
+
+            <TemplateFileTree
+              data={templateData!}
+              onFileSelect={handleFileSelect}
+              selectedFile={activeFile}
+              title="File Explorer"
+              onAddFile={() => { }}
+              onAddFolder={() => { }}
+              onDeleteFile={() => { }}
+              onDeleteFolder={() => { }}
+              onRenameFile={() => { }}
+              onRenameFolder={() => { }}
+            />
+          )
+        }
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
@@ -100,7 +119,7 @@ const MainPlaygroundPage = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {}}
+                      onClick={() => { }}
                       disabled={!activeFile || !activeFile.hasUnsavedChanges}
                     >
                       <Save className="h-4 w-4" />
@@ -110,11 +129,11 @@ const MainPlaygroundPage = () => {
                 </Tooltip>
 
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {}}
+                      onClick={() => { }}
                       disabled={!hasUnsavedChanges}
                     >
                       <Save className="h-4 w-4" /> All
@@ -128,7 +147,7 @@ const MainPlaygroundPage = () => {
                 </Button>
 
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger>
                     <Button size="sm" variant="outline">
                       <Settings className="h-4 w-4" />
                     </Button>
@@ -204,11 +223,35 @@ const MainPlaygroundPage = () => {
                   <ResizablePanelGroup direction="horizontal" className="h-full">
                     <ResizablePanel defaultSize={isPreviewVisible ? 50 : 100}>
                       <PlaygroundEditor
-                      activeFile={activeFile}
-                      content={activeFile?.content || ""}
-                      onContentChange={()=>{}}
+                        activeFile={activeFile}
+                        content={activeFile?.content || ""}
+                        onContentChange={() => { }}
                       />
                     </ResizablePanel>
+
+                    {
+                      isPreviewVisible && templateData && (
+                        <>
+                          <ResizableHandle />
+                          <ResizablePanel defaultSize={50}>
+                          
+
+                                <WebContainerPreview
+                                  templateData={templateData}
+                                  instance={instance}
+                                  writeFileSync={writeFileSync}
+                                  isLoading={containerLoading}
+                                  error={containerError}
+                                  serverUrl={serverUrl ?? ""}
+                                  forceResetup={false}
+                                />
+                             
+                          </ResizablePanel>
+                        </>
+                      )
+                    }
+
+
                   </ResizablePanelGroup>
                 </div>
               </div>
