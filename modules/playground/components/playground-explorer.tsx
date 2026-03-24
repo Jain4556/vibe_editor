@@ -288,7 +288,7 @@ function TemplateNode({
           <SidebarMenuButton
             isActive={isSelected}
             onClick={() => onFileSelect?.(file)}
-            className="flex-1"
+            className="flex-1 overflow-hidden"
           >
             <File className="h-4 w-4 mr-2 shrink-0" />
             <span>{fileName}</span>
@@ -344,7 +344,8 @@ function TemplateNode({
   } else {
     const folder = item as TemplateFolder;
     const folderName = folder.folderName;
-    const currentPath = path ? '{path}/{folderName}' : folderName;
+    // const currentPath = path ? '{path}/{folderName}' : folderName;
+    const currentPath = path ? `${path}/${folderName}` : folderName;
 
     const handleAddFile = () => {
       setIsNewFileDialogOpen(true);
@@ -401,25 +402,53 @@ function TemplateNode({
           open={isOpen}
           onOpenChange={setIsOpen}
         >
-          <div className="flex items-center group">
-            <CollapsibleTrigger>
-              <SidebarMenuButton asChild className="flex-1">
-                <CollapsibleTrigger>
-                  <ChevronRight
-                    className={`transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
-                  />
-                  <Folder className="h-4 w-4 mr-2 shrink-0" />
-                  <span>{folderName}</span>
-                </CollapsibleTrigger>
-              </SidebarMenuButton>
-            </CollapsibleTrigger>
+          <div className="flex items-center justify-between w-full group">
+         <div className="flex items-center justify-between w-full gap-2 group">
+  
+  {/* LEFT SIDE */}
+  <CollapsibleTrigger asChild>
+    <SidebarMenuButton className="flex-1 min-w-0 overflow-hidden">
+      <div className="flex items-center gap-2 w-full overflow-hidden">
+        
+        <ChevronRight
+          className={`shrink-0 transition-transform duration-200 ${
+            isOpen ? "rotate-90" : ""
+          }`}
+        />
+
+        <Folder className="h-4 w-4 shrink-0" />
+
+        <span className="truncate block">
+          {folderName}
+        </span>
+
+      </div>
+    </SidebarMenuButton>
+  </CollapsibleTrigger>
+
+  {/* RIGHT SIDE MENU */}
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <MoreHorizontal className="h-3 w-3" />
+      </Button>
+    </DropdownMenuTrigger>
+
+    {/* keep your menu content same */}
+  </DropdownMenu>
+
+</div>
 
             <DropdownMenu>
               <DropdownMenuTrigger >
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <MoreHorizontal className="h-3 w-3" />
                 </Button>
