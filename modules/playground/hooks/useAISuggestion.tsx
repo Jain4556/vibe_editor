@@ -53,51 +53,51 @@ export const UseAISuggestions = (): UseAISuggestionsReturn => {
 
             const newState = { ...currentState, isLoading: true };
 
-                (async () => {
-                    try {
-                        const payload = {
-                            fileContent: model.getValue(),
-                            cursorLine: cursorPosition.lineNumber - 1,
-                            cursorColumn: cursorPosition.column - 1,
-                            suggestionType: type
+            (async () => {
+                try {
+                    const payload = {
+                        fileContent: model.getValue(),
+                        cursorLine: cursorPosition.lineNumber - 1,
+                        cursorColumn: cursorPosition.column - 1,
+                        suggestionType: type
 
-                        }
-
-
-                        const response = await fetch("/api/code-suggestion", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(payload)
-                        })
-                        if (!response.ok) {
-                            throw new Error(`API responded with status ${response.status}`)
-                        }
-
-                        const data = await response.json()
+                    }
 
 
-                        if (data.suggestion) {
-                            const suggestionText = data.suggestion.trim();
-                            setState((prev) => ({
-                                ...prev,
-                                suggestion: suggestionText,
-                                position: {
-                                    line: cursorPosition.lineNumber,
-                                    column: cursorPosition.column
-                                },
-                                isLoading: false
-                            }))
-                        }
-                        else {
-                            console.warn("No suggestion received from API")
-                            setState((prev) => ({ ...prev, isLoading: false }))
-                        }
-                    } catch (error) {
-                        console.error("Error fetching code suggestion", error)
+                    const response = await fetch("/api/code-completion", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    })
+                    if (!response.ok) {
+                        throw new Error(`API responded with status ${response.status}`)
+                    }
 
+                    const data = await response.json()
+
+
+                    if (data.suggestion) {
+                        const suggestionText = data.suggestion.trim();
+                        setState((prev) => ({
+                            ...prev,
+                            suggestion: suggestionText,
+                            position: {
+                                line: cursorPosition.lineNumber,
+                                column: cursorPosition.column
+                            },
+                            isLoading: false
+                        }))
+                    }
+                    else {
+                        console.warn("No suggestion received from API")
                         setState((prev) => ({ ...prev, isLoading: false }))
                     }
-                })()
+                } catch (error) {
+                    console.error("Error fetching code suggestion", error)
+
+                    setState((prev) => ({ ...prev, isLoading: false }))
+                }
+            })()
 
             return newState
         })
@@ -122,7 +122,7 @@ export const UseAISuggestions = (): UseAISuggestionsReturn => {
                     }
                 ])
 
-                if(editor && currentState.decoration.length > 0){
+                if (editor && currentState.decoration.length > 0) {
                     editor.deltaDecorations(currentState.decoration, [])
                 }
 
@@ -134,46 +134,46 @@ export const UseAISuggestions = (): UseAISuggestionsReturn => {
                 }
             })
         }
-    }, []),
-
-
-    const rejectSuggestion = useCallback((editor:any)=> {
-             setState((currentState)=>{
-                 if(editor && currentState.decoration.length > 0){
-                    editor.deltaDecorations(currentState.decoration , [])
-                }
-
-                return {
-                    ...currentState,
-                    suggestion:null,
-                    position:null,
-                    decoration:[]
-                }
-            }) 
     }, [])
 
-        const clearSuggestion = useCallback((editor: any) => {
-    setState((currentState) => {
-      if (editor && currentState.decoration.length > 0) {
-        editor.deltaDecorations(currentState.decoration, []);
-      }
-      return {
-        ...currentState,
-        suggestion: null,
-        position: null,
-        decoration: [],
-      };
-    });
-  }, []);
 
-  return {
-    ...state,
-    toggleEnabled,
-    fetchSuggestion,
-    acceptSuggestion,
-    rejectSuggestion,
-    clearSuggestion
-  }
+    const rejectSuggestion = useCallback((editor: any) => {
+        setState((currentState) => {
+            if (editor && currentState.decoration.length > 0) {
+                editor.deltaDecorations(currentState.decoration, [])
+            }
+
+            return {
+                ...currentState,
+                suggestion: null,
+                position: null,
+                decoration: []
+            }
+        })
+    }, [])
+
+    const clearSuggestion = useCallback((editor: any) => {
+        setState((currentState) => {
+            if (editor && currentState.decoration.length > 0) {
+                editor.deltaDecorations(currentState.decoration, []);
+            }
+            return {
+                ...currentState,
+                suggestion: null,
+                position: null,
+                decoration: [],
+            };
+        });
+    }, []);
+
+    return {
+        ...state,
+        toggleEnabled,
+        fetchSuggestion,
+        acceptSuggestion,
+        rejectSuggestion,
+        clearSuggestion
+    }
 
 }
 
