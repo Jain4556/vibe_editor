@@ -4,6 +4,7 @@ import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { cn } from "@/lib/utils"
 
+
 const DropdownMenu = DropdownMenuPrimitive.Root
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
@@ -65,6 +66,17 @@ const DropdownMenuSeparator = React.forwardRef<
 ))
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator"
 
+
+const DropdownMenuCheckboxItem = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem>
+>((props, ref) => (
+  <DropdownMenuPrimitive.CheckboxItem ref={ref} {...props} />
+));
+
+DropdownMenuCheckboxItem.displayName = "DropdownMenuCheckboxItem";
+
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -72,4 +84,5 @@ export {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuCheckboxItem
 }
