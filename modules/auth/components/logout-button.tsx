@@ -8,8 +8,10 @@ const LogoutButton = ({children}:LogoutButtonProps) => {
     const router = useRouter();
     const onLogout = async()=>{
         await signOut({
+          redirect: true, 
           callbackUrl: "/auth/sign-in"
         })
+
        
     }
   return (

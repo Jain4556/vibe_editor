@@ -13,6 +13,7 @@ declare module "next-auth" {
       id: string;
       role: string;
     } & DefaultSession["user"]
+   accessToken?: string;
   }
 }
 
@@ -88,33 +89,60 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     // ✅ Use explicit JWT type from next-auth/jwt
-    async jwt({ token, user }) {
-      if (!token.sub) return token;
+  async jwt({ token, user, account }) {
+  // ✅ STORE GITHUB ACCESS TOKEN
+  if (account?.access_token) {
+    (token as JWT & { accessToken?: string }).accessToken =
+      account.access_token;
+  }
 
-      const existingUser = await getUserById(token.sub);
-      if (!existingUser) return token;
+  if (!token.sub) return token;
 
-      token.name = existingUser.name;
-      token.email = existingUser.email;
-      // ✅ Cast to any to avoid modifier conflict with built-in JWT type
-      (token as JWT & { role: string }).role = existingUser.role;
+  const existingUser = await getUserById(token.sub);
+  if (!existingUser) return token;
 
-      return token;
-    },
+  token.name = existingUser.name;
+  token.email = existingUser.email;
 
-    async session({ session, token }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-        // ✅ Safe cast since role is always set in jwt callback
-        session.user.role = (token as JWT & { role: string }).role ?? "USER";
-      }
+  // role
+  (token as JWT & { role: string }).role = existingUser.role;
 
-      return session;
-    },
+  return token;
+},
+
+
+   async session({ session, token }) {
+  if (token.sub && session.user) {
+    session.user.id = token.sub;
+    session.user.role = (token as JWT & { role: string }).role ?? "USER";
+  }
+
+  // ✅ ADD THIS
+  (session as any).accessToken = (token as any).accessToken;
+
+  return session;
+}, 
+
+async redirect({ url, baseUrl }) {
+  // If it's a relative URL (like /auth/sign-in)
+  if (url.startsWith("/")) {
+    return `${baseUrl}${url}`;
+  }
+
+  // If same origin, allow it
+  if (url.startsWith(baseUrl)) {
+    return url;
+  }
+
+  // Default fallback
+  return baseUrl;
+}
   },
 
   secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   ...authConfig,
+
+
 });
