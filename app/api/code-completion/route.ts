@@ -40,14 +40,14 @@ export async function POST(
             );
         }
 
-        const context = analyzeCodeContext(
+        const codeContext = analyzeCodeContext(
             fileContent,
             cursorLine,
             cursorColumn,
             fileName
         );
 
-        const prompt = buildPrompt(context, suggestionType);
+        const prompt = buildPrompt(codeContext, suggestionType);
 
         const suggestion = await generateSuggestion(prompt);
 
@@ -55,9 +55,9 @@ export async function POST(
             suggestion,
             context,
             metadata: {
-                language: context.language,
-                framework: context.framework,
-                position: context.cursorPosition,
+                language: codeContext.language,
+                framework: codeContext.framework,
+                position: codeContext.cursorPosition,
                 generatedAt: new Date().toISOString(),
             },
         });
