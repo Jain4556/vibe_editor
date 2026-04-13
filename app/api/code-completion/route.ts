@@ -22,7 +22,10 @@ interface CodeContext {
     incompletePatterns: string[];
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+    request: NextRequest, 
+    context: { params: Promise<{ id: string }> }
+) {
     try {
         const body: CodeSuggestionRequest = await request.json();
 

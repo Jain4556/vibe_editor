@@ -62,7 +62,10 @@ Always provide clear, practical answers. Use proper code formatting when showing
 
 
 
-export async function POST(req: NextRequest) {
+export async function POST(
+    req: NextRequest, 
+    context: { params: Promise<{ id: string }> }
+) {
     try {
         const body: ChatRequest = await req.json()
         const { message, history = [] } = body
