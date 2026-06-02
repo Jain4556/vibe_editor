@@ -2,9 +2,9 @@ import { scanTemplateDirectory } from "@/modules/playground/lib/path-to-json";
 import { db } from "@/lib/db";
 import { templatePaths } from "@/lib/template";
 import path from "path";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-// ✅ Validation function
+// ✅ Validation function (keep simple)
 function validateJsonStructure(data: unknown): boolean {
   try {
     JSON.parse(JSON.stringify(data));
@@ -17,76 +17,70 @@ function validateJsonStructure(data: unknown): boolean {
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ Next.js 16 format
+  { params }: { params: { id: string } } // ✅ FIXED (removed Promise)
 ) {
   try {
-    // ✅ Correct way to access params
-    const { id } = await context.params;
+    const { id } = await params;
 
     if (!id) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Missing playground ID" },
         { status: 400 }
       );
     }
 
-    // ✅ Fetch from DB
     const playground = await db.playground.findUnique({
       where: { id },
     });
 
     if (!playground) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Playground not found" },
         { status: 404 }
       );
     }
 
-    // ✅ Get template path
     const templateKey = playground.template as keyof typeof templatePaths;
     const templatePath = templatePaths[templateKey];
 
     if (!templatePath) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Invalid template" },
         { status: 404 }
       );
     }
 
-    // ✅ Safe path resolution
+    // ✅ FIXED PATH (since folder is outside project)
     const inputPath = path.join(process.cwd(), templatePath);
+    console.log("✅ templateKey:", templateKey);
+    console.log("✅ templatePath:", templatePath);
+    console.log("✅ inputPath:", inputPath);
 
-    console.log("templateKey:", templateKey);
-    console.log("templatePath:", templatePath);
-    console.log("inputPath:", inputPath);
-
-    // ✅ Scan directory
+    // ✅ Direct scan (no file system write/read)
     const result = await scanTemplateDirectory(inputPath);
+console.log("FINAL PATH:", inputPath);
 
-    // ✅ Validate JSON
-    if (!validateJsonStructure(result?.items)) {
-      return NextResponse.json(
+
+    if (!validateJsonStructure(result.items)) {
+      return Response.json(
         { error: "Invalid JSON structure" },
         { status: 500 }
       );
     }
 
-    // ✅ Success response
-    return NextResponse.json(
-      {
-        success: true,
-        templateJson: result,
-      },
+    return Response.json(
+      { success: true, templateJson: result },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("FULL API ERROR:", error);
 
-    return NextResponse.json(
-      {
-        error: (error as Error).message || "Internal Server Error",
-      },
+  } catch (error) {
+    console.error("❌ FULL API ERROR:", error);
+
+    return Response.json(
+      { error: (error as Error).message },
       { status: 500 }
     );
   }
+  
 }
+

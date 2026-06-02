@@ -306,7 +306,42 @@ export default function ProjectTable({
         </Table>
       </div>
 
-      {/* Dialogs unchanged */}
+      {/* Dialogs added */}
+            
+  <>
+    <div className="border rounded-lg overflow-hidden">
+      {/* TABLE */}
+    </div>
+
+    {/* ✅ ADD ALERT DIALOG HERE */}
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your project.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isLoading}>
+            Cancel
+          </AlertDialogCancel>
+
+          <AlertDialogAction
+            onClick={handleDeleteProject}
+            disabled={isLoading}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {isLoading ? "Deleting..." : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+  </>
+
+
       {/* (No changes needed below) */}
     </>
   );

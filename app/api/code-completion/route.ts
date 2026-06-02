@@ -22,10 +22,7 @@ interface CodeContext {
     incompletePatterns: string[];
 }
 
-export async function POST(
-    request: NextRequest, 
-    context: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest) {
     try {
         const body: CodeSuggestionRequest = await request.json();
 
@@ -40,14 +37,14 @@ export async function POST(
             );
         }
 
-        const codeContext = analyzeCodeContext(
+        const context = analyzeCodeContext(
             fileContent,
             cursorLine,
             cursorColumn,
             fileName
         );
 
-        const prompt = buildPrompt(codeContext, suggestionType);
+        const prompt = buildPrompt(context, suggestionType);
 
         const suggestion = await generateSuggestion(prompt);
 
@@ -55,9 +52,9 @@ export async function POST(
             suggestion,
             context,
             metadata: {
-                language: codeContext.language,
-                framework: codeContext.framework,
-                position: codeContext.cursorPosition,
+                language: context.language,
+                framework: context.framework,
+                position: context.cursorPosition,
                 generatedAt: new Date().toISOString(),
             },
         });
